@@ -48,12 +48,34 @@ def fetchMSNews():
     search_term = "Microsoft"
     search_url = "https://api.bing.microsoft.com/v7.0/news/search"
     headers = {"Ocp-Apim-Subscription-Key" : subscription_key}
-    params  = {"q": search_term, "textDecorations": True, "textFormat": "HTML", "cc" : "in"}
+    params  = {"q" : "வணிக|பொழுதுபோக்கு|இந்தியா|வாழ்க்கை|அரசியல்|அறிவியல் மற்றும்|தொழில்நுட்பம்|விளையாட்டு|உலகம்","textDecorations": True,  "setLang" : "ta","cc" : "IN", "textFormat": "HTML","count" : "100"}
     response = requests.get(search_url, headers=headers, params=params)
-    response.raise_for_status()
-    search_results = json.dumps(response.json())
-    # descriptions = [article["description"] for article in search_results["value"]]
-    print(search_results)
+    # response.raise_for_status()
+    # search_results = json.dumps(response.json())
+    # # print(search_results)
+    # search_results = dict(search_results)
+    # newses = search_results["sort"]
+    # for news in newses:
+    #     print(news["url"])
+    data = response.json()
+    print(data)
+    print("\n\n")
+    newses = data["value"]
+    # print(newses)
+    for news in newses:
+        provider = news["provider"]
+        
+        print( provider[0]["name"] +" " + news["url"] + "\n\n")
+        scrap(news["url"])
+        print("\n\n\n\n")
+        
+        
+    
+    
+    
+        
+    
+fetchMSNews()
 
 
 def fetchGNews(lang, category):
@@ -84,6 +106,9 @@ def fetchGNews(lang, category):
         print("Scraping now: .... \n")
         scrap(str(article['url']))
         print("\n\n")
+        
+        
+        
         
     
 
