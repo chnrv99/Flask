@@ -30,8 +30,11 @@ def scrap(url):
     # print(soup)
     # print("Hello")
     paras = soup.findAll('p')
+    result = ''
     for para in paras:
         print(para.get_text())
+        result = result + para.get_text()
+    return result
     
     # print(title.get_text()) # Prints page title.
     
@@ -48,7 +51,7 @@ def fetchMSNews():
     search_term = "Microsoft"
     search_url = "https://api.bing.microsoft.com/v7.0/news/search"
     headers = {"Ocp-Apim-Subscription-Key" : subscription_key}
-    params  = {"q" : "வணிக|பொழுதுபோக்கு|இந்தியா|வாழ்க்கை|அரசியல்|அறிவியல் மற்றும்|தொழில்நுட்பம்|விளையாட்டு|உலகம்","textDecorations": True,  "setLang" : "ta","cc" : "IN", "textFormat": "HTML","count" : "30"}
+    params  = {"q" : "வணிக|பொழுதுபோக்கு|இந்தியா|வாழ்க்கை|அரசியல்|அறிவியல் மற்றும்|தொழில்நுட்பம்|விளையாட்டு|உலகம்","textDecorations": True,  "setLang" : "ta","cc" : "IN", "textFormat": "HTML","count" : "15"}
     response = requests.get(search_url, headers=headers, params=params)
     # response.raise_for_status()
     # search_results = json.dumps(response.json())
@@ -62,17 +65,23 @@ def fetchMSNews():
     print("\n\n")
     newses = data["value"]
     # print(newses)
+    result = {}
     for news in newses:
+        l=[]
         provider = news["provider"]
+        l.append(provider[0]["name"])
+        
         
         print( provider[0]["name"] +" " + news["url"] + "\n\n")
-        scrap(news["url"])
+        content = scrap(news["url"])
+        l.append(content)
+        result[news['url']] = l
         print("\n\n\n\n")
         
     # same for english
     search_url = "https://api.bing.microsoft.com/v7.0/news/search"
     headers = {"Ocp-Apim-Subscription-Key" : subscription_key}
-    params  = {"q" : "Business|Entertainment|India|Life|Politics|Science|Technology|Sports|World","textDecorations": True,  "setLang" : "ta","cc" : "IN", "textFormat": "HTML","count" : "30"}
+    params  = {"q" : "Business|Entertainment|India|Life|Politics|Science|Technology|Sports|World","textDecorations": True,  "setLang" : "ta","cc" : "IN", "textFormat": "HTML","count" : "15"}
     response = requests.get(search_url, headers=headers, params=params)
     # response.raise_for_status()
     # search_results = json.dumps(response.json())
@@ -86,13 +95,20 @@ def fetchMSNews():
     print("\n\n")
     newses = data["value"]
     # print(newses)
+    # result = {}
     for news in newses:
+        l=[]
         provider = news["provider"]
+        l.append(provider[0]["name"])
+        
         
         print( provider[0]["name"] +" " + news["url"] + "\n\n")
-        scrap(news["url"])
+        content = scrap(news["url"])
+        l.append(content)
+        result[news['url']] = l
         print("\n\n\n\n")
         
+    return result
         
     
     
@@ -100,10 +116,10 @@ def fetchMSNews():
     
         
     
-fetchMSNews()
+# fetchMSNews()
 
 
-def fetchGNews(lang, category):
+def fetchGNews(lang):
     newsAPI_KEY = 'd73724588f06f6269a5dfbd8ec4fb267'
     newsAPI_URL = 'https://gnews.io/api/v4/top-headlines?'
     
@@ -112,25 +128,36 @@ def fetchGNews(lang, category):
     # 
     
     
-    final_URL = newsAPI_URL + '?lang=' + lang + '&country=in&apikey=' + newsAPI_KEY
+    final_URL = newsAPI_URL + 'lang=' + lang + '&country=in&apikey=' + newsAPI_KEY + "&max=30"
     
     
     r = requests.get(final_URL)
     data = r.json()
     # print(data)
     articles = data['articles']
+    print(len(articles))
     # print(articles)
     
+    result = {}
+    l=[]
     for article in articles:
         print(article['title'])
+        l.append(article['source'])
+        l.append(article['title'])
         print(article['description'])
         print(article['content'])
         print(article['url'])
         print(article['publishedAt'])
         print(article['source'])
         print("Scraping now: .... \n")
-        scrap(str(article['url']))
+        content = scrap(str(article['url']))
+        l.append(content)
         print("\n\n")
+        result[article['url']] = l
+        l=[]
+    print("\n\n\n\n")
+    print(result)
+    return result
         
         
         
@@ -156,12 +183,25 @@ def fetchNews(lang):
     
 
 
+# fetchGNews('hi')
+
 @app.route('/')
 def hello():
-    # fetchNews('hi')
     # scrap()
-    fetchMSNews()
+    # fetchMSNews()
     return "Hello"
+
+
+@app.route('/msNews')
+def msNews():
+    data = fetchMSNews()
+    return data
+
+@app.route('/gNews')
+def gNews():
+    data = fetchGNews('ta')
+    return data
+
 
 if __name__ == "__main__":
     app.run()
