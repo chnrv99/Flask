@@ -48,7 +48,7 @@ def fetchMSNews():
     search_term = "Microsoft"
     search_url = "https://api.bing.microsoft.com/v7.0/news/search"
     headers = {"Ocp-Apim-Subscription-Key" : subscription_key}
-    params  = {"q": search_term, "textDecorations": True, "textFormat": "HTML"}
+    params  = {"q": search_term, "textDecorations": True, "textFormat": "HTML", "cc" : "in"}
     response = requests.get(search_url, headers=headers, params=params)
     response.raise_for_status()
     search_results = json.dumps(response.json())
