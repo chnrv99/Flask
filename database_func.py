@@ -36,29 +36,74 @@ news_data = {
 
 
 def addItem(news_data):
+    cnx = psycopg2.connect(
+    user="chnrv",
+    password="sih12345$",
+    host="chnrv.postgres.database.azure.com",
+    port=5432,
+    database=""
+    )
+
+    cursor = cnx.cursor()
+
     insert_sql = """
     INSERT INTO newsNew (id, title, domain, published_date, tonality) VALUES (%s, %s, %s, %s, %s);
     """
 
     cursor.execute(insert_sql, (news_data["id"], news_data["title"],
                    news_data["domain"], news_data["published_date"], news_data["tonality"]))
+    
+    
+    cnx.commit()
+    cursor.close()
+    cnx.close()
+
     return True
 
 def queryTonality(tonality):
+    cnx = psycopg2.connect(
+    user="chnrv",
+    password="sih12345$",
+    host="chnrv.postgres.database.azure.com",
+    port=5432,
+    database=""
+    )
+
+    cursor = cnx.cursor()
+    
+
     select_sql = """
     SELECT * FROM newsNew WHERE tonality = %s;
     """
     cursor.execute(select_sql, (tonality,))
 
     rows = cursor.fetchall()
+    
+    cnx.commit()
+    cursor.close()
+    cnx.close()
+
     return rows
 
 def queryAll():
+    cnx = psycopg2.connect(
+    user="chnrv",
+    password="sih12345$",
+    host="chnrv.postgres.database.azure.com",
+    port=5432,
+    database=""
+    )
+
     select_sql = """
     SELECT * FROM newsNew;
     """
     cursor.execute(select_sql)
     rows = cursor.fetchall()
+
+    cnx.commit()
+    cursor.close()
+    cnx.close()
+    
     return rows
 
 def updateBasedOnId(row):

@@ -208,9 +208,9 @@ def gNews():
 def sort(tonality):
     if tonality in ['negative', 'positive', 'neutral']:
         result = database_func.queryTonality(tonality)
-        return result
+        return render_template('index.html', newses = result)
     elif tonality == "all":
-        return database_func.queryAll()
+        return render_template('index.html', newses = database_func.queryAll())
     else:
         return False
     
