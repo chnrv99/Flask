@@ -1,9 +1,9 @@
-from flask import Flask
-import requests, json
+from flask import Flask, render_template
+import requests
 from bs4 import BeautifulSoup
+import database_func
 
-
-app = Flask(__name__)
+app = Flask(__name__, template_folder='template', static_folder='static')
 
 # fetch news
 # based on language on category
@@ -189,7 +189,9 @@ def fetchNews(lang):
 def hello():
     # scrap()
     # fetchMSNews()
-    return "Hello"
+    # return "Hello"
+    l = [['news1', 'positive','education','date1','site1'], ['news2', 'neutral','sports','date2','site2'], ['news3', 'negative','education','date1','site1']]
+    return render_template('index.html',newses = l)
 
 
 @app.route('/msNews')
@@ -201,6 +203,19 @@ def msNews():
 def gNews():
     data = fetchGNews('ta')
     return data
+
+@app.route('/sort/<string:tonality>')
+def sort(tonality):
+    if tonality in ['negative', 'positive', 'neutral']:
+        result = database_func.queryTonality(tonality)
+        return result
+    elif tonality == "all":
+        return database_func.queryAll()
+    else:
+        return False
+    
+
+
 
 
 if __name__ == "__main__":
