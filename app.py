@@ -190,8 +190,9 @@ def hello():
     # scrap()
     # fetchMSNews()
     # return "Hello"
-    l = [['news1', 'positive','education','date1','site1'], ['news2', 'neutral','sports','date2','site2'], ['news3', 'negative','education','date1','site1']]
-    return render_template('index.html',newses = l)
+    # l = [['news1', 'positive','education','date1','site1'], ['news2', 'neutral','sports','date2','site2'], ['news3', 'negative','education','date1','site1']]
+    data = database_func.queryAll()
+    return render_template('index.html',newses = data)
 
 
 @app.route('/msNews')
