@@ -237,6 +237,61 @@
 			</div>
 		</div>
 	</div>
+	<div class="report-container">
+		<div class="report-header">
+			<h1 class="recent-Articles">Recent Youtube Videos</h1>
+			<button class="view">View All</button>
+		</div>
+		<table id="new-table">
+			<thead>
+				<th col-index = 1><h3 class="t-op">NEWS</h3></th>
+				<th col-index = 2><h3 class="t-op">STATUS</h3>
+					<select class="table-filter" onchange="filter_rows()">
+						<option value="all"></option>
+					</select>
+				</th>                
+				<th col-index = 3><h3 class="t-op">TONALITY</h3>
+					<select class="table-filter" onchange="filter_rows()">
+						<option value="all"></option>
+					</select>
+				</th>
+				<th col-index = 4><h3 class="t-op">DOMAIN</h3>
+					<select class="table-filter" onchange="filter_rows()">
+						<option value="all"></option>
+					</select>
+				</th>
+				<th col-index = 5><h3 class="t-op">DATE/TIME</h3>
+					<select class="table-filter" onchange="filter_rows()">
+						<option value="all"></option>
+					</select>
+				</th>
+				
+			</thead>
+		<tbody>
+			<tr>
+				<td><h3><a href="https://www.google.com/search?q=rick+roll&sca_esv=567659379&tbm=isch&source=lnms&sa=X&ved=2ahUKEwjLnLmM-76BAxUfTGwGHZ57AIcQ_AUoAXoECAIQAw#imgrc=XM1CZyGFooacqM">News1</a></h3></td>
+				<td><h3>Video</h3></td>
+				<td><h3>Positive</h3></td>
+				<td><h3>Agri</h3></td>
+				<td><h3><p id="currentDate"></p></h3></td>
+			</tr>
+			<tr>
+				<td><h3>News1</h3></td>
+				<td><h3>MP3</h3></td>
+				<td><h3>Negative</h3></td>
+				<td><h3>Law</h3></td>
+				<td><h3><p id="currentDate"></p></h3></td>
+			</tr>
+			<tr>
+				<td><h3>News1</h3></td>
+				<td><h3>Text</h3></td>
+				<td><h3>Positive</h3></td>
+				<td><h3>Education</h3></td>
+				<td><h3><p id="currentDate"></p></h3></td>
+			</tr>
+		</tbody>
+		</table>
+	</div>
 	</div>
 
 	<script>
