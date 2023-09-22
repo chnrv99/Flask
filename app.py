@@ -191,8 +191,12 @@ def hello():
     # fetchMSNews()
     # return "Hello"
     # l = [['news1', 'positive','education','date1','site1'], ['news2', 'neutral','sports','date2','site2'], ['news3', 'negative','education','date1','site1']]
+
+    co1 = database_func.queryTonality('positive')
+    co2 = database_func.queryTonality('neutral')
+    co3 = database_func.queryTonality('negative')
     data = database_func.queryAll()
-    return render_template('index.html',newses = data)
+    return render_template('index.html',co1 = co1, co2 = co2, co3 = co3, newses = data)
 
 
 @app.route('/msNews')
@@ -208,10 +212,16 @@ def gNews():
 @app.route('/sort/<string:tonality>')
 def sort(tonality):
     if tonality in ['negative', 'positive', 'neutral']:
+        co1 = database_func.queryTonality('positive')
+        co2 = database_func.queryTonality('neutral')
+        co3 = database_func.queryTonality('negative')
         result = database_func.queryTonality(tonality)
-        return render_template('index.html', newses = result)
+        return render_template('index.html', co1=co1, co2=co2, co3=co3, newses = result)
     elif tonality == "all":
-        return render_template('index.html', newses = database_func.queryAll())
+        co1 = database_func.queryTonality('positive')
+        co2 = database_func.queryTonality('neutral')
+        co3 = database_func.queryTonality('negative')
+        return render_template('index.html', co1=co1, co2=co2, co3=co3, newses = database_func.queryAll())
     else:
         return False
     

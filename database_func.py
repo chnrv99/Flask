@@ -85,6 +85,28 @@ def queryTonality(tonality):
 
     return rows
 
+def noOfTonality(tonality):
+    cnx = psycopg2.connect(
+    user="chnrv",
+    password="sih12345$",
+    host="chnrv.postgres.database.azure.com",
+    port=5432,
+    database=""
+    )
+    cursor = cnx.cursor()
+
+    select_sql = """
+    SELECT COUNT(*) FROM newsNew WHERE tonality = %s;
+    """
+    cursor.execute(select_sql, (tonality,))
+    count = cursor.fetchall()
+
+    cnx.commit()
+    cursor.close()
+    cnx.close()
+
+    return count
+
 def queryAll():
     cnx = psycopg2.connect(
     user="chnrv",
@@ -93,6 +115,7 @@ def queryAll():
     port=5432,
     database=""
     )
+    cursor = cnx.cursor()
 
     select_sql = """
     SELECT * FROM newsNew;
@@ -103,7 +126,7 @@ def queryAll():
     cnx.commit()
     cursor.close()
     cnx.close()
-    
+
     return rows
 
 def updateBasedOnId(row):
