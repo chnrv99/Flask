@@ -1,219 +1,100 @@
-from flask import Flask
-import requests, json
-from bs4 import BeautifulSoup
-from newsplease import NewsPlease
+# ----------------------------------------------------------------------------------
+# MIT License
+#
+# Copyright(c) Microsoft Corporation. All rights reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# ----------------------------------------------------------------------------------
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 
-app = Flask(__name__)
 
-# fetch news
-# based on language on category
-# take top 3 news for now, and do manual scraping for content alone
-# 1hr once the job will run
+import os, uuid, sys
+from azure.storage.blob import BlockBlobService, PublicAccess
 
-# 2 categories - sports and 
-# 2 languages - tamil and english
-# 4 domains - sports()
-
-# database
-# source, title, link, date and time, category(positive/negative)
-
-# API Key - 55a0cdab50f94dbaba53e0a8aa9a1c93
-# Endpoint - https://api.bing.microsoft.com/
-# Location - global
-
-def scrap(url):
-# def scrap():
-    agent = {"User-Agent":'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36'}
-    # response = requests.get('https://www.hindustantimes.com/india-news/sonia-gandhi-came-to-pull-collar-nishikant-dubeys-reminder-in-lok-sabha-101695200191323.html', headers=agent)
-    response = requests.get(url, headers = agent)
-    soup = BeautifulSoup(response.text, 'lxml')
-    # print(soup)
-    # print("Hello")
-    paras = soup.findAll('p')
-    result = ''
-    for para in paras:
-        print(para.get_text())
-        result = result + para.get_text()
-    return result
-    
-    # print(title.get_text()) # Prints page title.
-    
-    # print(response.conten
-    # t)
-
-def fetchMSNews():
-    newsAPI_KEY = '55a0cdab50f94dbaba53e0a8aa9a1c93'
-    newsAPI_URL = 'https://api.bing.microsoft.com/'
-    location = 'global'
-  
-
-    subscription_key = newsAPI_KEY
-    search_term = "Microsoft"
-    search_url = "https://api.bing.microsoft.com/v7.0/news/search"
-    headers = {"Ocp-Apim-Subscription-Key" : subscription_key}
-    params  = {"q" : "வணிக|பொழுதுபோக்கு|இந்தியா|வாழ்க்கை|அரசியல்|அறிவியல் மற்றும்|தொழில்நுட்பம்|விளையாட்டு|உலகம்","textDecorations": True,  "setLang" : "ta","cc" : "IN", "textFormat": "HTML","count" : "15"}
-    response = requests.get(search_url, headers=headers, params=params)
-    # response.raise_for_status()
-    # search_results = json.dumps(response.json())
-    # # print(search_results)
-    # search_results = dict(search_results)
-    # newses = search_results["sort"]
-    # for news in newses:
-    #     print(news["url"])
-    data = response.json()
-    print(data)
-    print("\n\n")
-    newses = data["value"]
-    # print(newses)
-    result = {}
-    for news in newses:
-        l=[]
-        provider = news["provider"]
-        l.append(provider[0]["name"])
-        
-        
-        print( provider[0]["name"] +" " + news["url"] + "\n\n")
-
-        content = scrap(news["url"])
-        l.append(content)
-        result[news['url']] = l
-        print("\n\n\n\n")
-        
-    # same for english
-    search_url = "https://api.bing.microsoft.com/v7.0/news/search"
-    headers = {"Ocp-Apim-Subscription-Key" : subscription_key}
-    params  = {"q" : "Business|Entertainment|India|Life|Politics|Science|Technology|Sports|World","textDecorations": True,  "setLang" : "ta","cc" : "IN", "textFormat": "HTML","count" : "15"}
-    response = requests.get(search_url, headers=headers, params=params)
-    # response.raise_for_status()
-    # search_results = json.dumps(response.json())
-    # # print(search_results)
-    # search_results = dict(search_results)
-    # newses = search_results["sort"]
-    # for news in newses:
-    #     print(news["url"])
-    data = response.json()
-    print(data)
-    print("\n\n")
-    newses = data["value"]
-    # print(newses)
-    # result = {}
-    for news in newses:
-        l=[]
-        provider = news["provider"]
-        l.append(provider[0]["name"])
-        
-        
-        print( provider[0]["name"] +" " + news["url"] + "\n\n")
-        content = scrap(news["url"])
-        article = NewsPlease.from_url(news["url"])
-        # print(article.title)
-        # print(article.description)
-        # print(article.maintext)
-        l.append(content)
-        result[news['url']] = {
-            "title" : l[0],
-            "content" : l[1],
-            "title_from_article" : article.title,
-            "description" : article.description,
-            "mainText" :article.mainText
-        }
-        print("\n\n\n\n")
-        
-    return result
-        
-    
-    
-    
-    
-        
-    
-# fetchMSNews()
+# ---------------------------------------------------------------------------------------------------------
+# Method that creates a test file in the 'Documents' folder.
+# This sample application creates a test file, uploads the test file to the Blob storage,
+# lists the blobs in the container, and downloads the file with a new name.
+# ---------------------------------------------------------------------------------------------------------
+# Documentation References:
+# Associated Article - https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-python
+# What is a Storage Account - http://azure.microsoft.com/en-us/documentation/articles/storage-whatis-account/
+# Getting Started with Blobs-https://docs.microsoft.com/en-us/azure/storage/blobs/storage-python-how-to-use-blob-storage
+# Blob Service Concepts - http://msdn.microsoft.com/en-us/library/dd179376.aspx
+# Blob Service REST API - http://msdn.microsoft.com/en-us/library/dd135733.aspx
+# ----------------------------------------------------------------------------------------------------------
 
 
-def fetchGNews(lang):
-    newsAPI_KEY = 'd73724588f06f6269a5dfbd8ec4fb267'
-    newsAPI_URL = 'https://gnews.io/api/v4/top-headlines?'
-    
-    # add timings logic
-    # 
-    # 
-    
-    
-    final_URL = newsAPI_URL + 'lang=' + lang + '&country=in&apikey=' + newsAPI_KEY + "&max=30"
-    
-    
-    r = requests.get(final_URL)
-    data = r.json()
-    # print(data)
-    articles = data['articles']
-    print(len(articles))
-    # print(articles)
-    
-    result = {}
-    l=[]
-    for article in articles:
-        print(article['title'])
-        l.append(article['source'])
-        l.append(article['title'])
-        print(article['description'])
-        print(article['content'])
-        print(article['url'])
-        print(article['publishedAt'])
-        print(article['source'])
-        print("Scraping now: .... \n")
-        content = scrap(str(article['url']))
-        l.append(content)
-        print("\n\n")
-        result[article['url']] = l
-        l=[]
-    print("\n\n\n\n")
-    print(result)
-    return result
+def run_sample():
+    try:
+        # Create the BlockBlockService that is used to call the Blob service for the storage account
+        block_blob_service = BlockBlobService(account_name='meetpythonstorage', account_key='duOguiKnYb6ZEbJC6BftWqA2lcH67dWkmCSEJj+KxOTOHCNPeV7r4oO6feTw7gSSoFGKHryL4yqSVWlEkm6jWg==')
 
-        
-        
-        
-    
+        # Create a container called 'quickstartblobs'.
+        container_name ='quickstartblobs'
+        block_blob_service.create_container(container_name)
 
-def fetchNews(lang):
-    print("Fetching for language: " + lang)
-    newsAPI_KEY = '0f25275ebe70404eb560a6c36065bee5'
-    # newsAPI_URL = 'https://newsapi.org/v2/everything?q=bitcoin&apiKey='
-    newsAPI_URL = 'https://newsapi.org/v2/top-headlines?country=in'
-    
-    
-    # add timings logic
-    # 
-    # 
-    
-    
-    final_URL = newsAPI_URL  + '&lang=' + lang  + '&apikey='+ newsAPI_KEY
-    r = requests.get(final_URL)
-    data = r.json()
-    print(data)
-    
+        # Set the permission so the blobs are public.
+        block_blob_service.set_container_acl(container_name, public_access=PublicAccess.Container)
+
+        # Create a file in Documents to test the upload and download.
+        local_path=os.path.abspath(os.path.curdir)
+        local_file_name =input("Enter file name to upload : ")
+        full_path_to_file =os.path.join(local_path, local_file_name)
+
+        # Write text to the file.
+        #file = open(full_path_to_file,  'w')
+        #file.write("Hello, World!")
+        #file.close()
+
+        print("Temp file = " + full_path_to_file)
+        print("\nUploading to Blob storage as blob" + local_file_name)
+
+        # Upload the created file, use local_file_name for the blob name
+        block_blob_service.create_blob_from_path(container_name, local_file_name, full_path_to_file)
+
+        # List the blobs in the container
+        print("\nList blobs in the container")
+        generator = block_blob_service.list_blobs(container_name)
+        for blob in generator:
+            print("\t Blob name: " + blob.name)
+
+        # Download the blob(s).
+        # Add '_DOWNLOADED' as prefix to '.txt' so you can see both files in Documents.
+        full_path_to_file2 = os.path.join(local_path, str.replace(local_file_name ,'.txt', '_DOWNLOADED.txt'))
+        print("\nDownloading blob to " + full_path_to_file2)
+        block_blob_service.get_blob_to_path(container_name, local_file_name, full_path_to_file2)
+
+        sys.stdout.write("Sample finished running. When you hit <any key>, the sample will be deleted and the sample "
+                         "application will exit.")
+        sys.stdout.flush()
+        input()
+
+        # Clean up resources. This includes the container and the temp files
+        block_blob_service.delete_container(container_name)
+        os.remove(full_path_to_file)
+        os.remove(full_path_to_file2)
+    except Exception as e:
+        print(e)
 
 
-# fetchGNews('hi')
-
-@app.route('/')
-def hello():
-    # scrap()
-    # fetchMSNews()
-    return "Hello"
+# Main method.
+if __name__ == '__main__':
+    run_sample()
 
 
-@app.route('/msNews')
-def msNews():
-    data = fetchMSNews()
-    return data
-
-@app.route('/gNews')
-def gNews():
-    data = fetchGNews('ta')
-    return data
-
-
-if __name__ == "__main__":
-    app.run()

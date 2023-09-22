@@ -226,6 +226,12 @@ def sort(tonality):
         return False
     
 
+@app.route('/sendEmail', methods=['POST'])
+def sendEmail():
+    print(requests)
+    
+    
+
 
 
 
